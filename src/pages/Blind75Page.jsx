@@ -1,4 +1,6 @@
+import React, { useState, useEffect } from 'react';
 import useBlind75 from '../hooks/useBlind75';
+import { getSolvedCount } from '../services/blind75Service';
 
 const DIFFICULTY_STYLES = {
   EASY:   'bg-green-100 text-green-700',
@@ -108,6 +110,20 @@ function QuestionRow({ index, question, statuses, onProgressUpdate }) {
 
 function Blind75Page() {
   const { questions, statuses, loading, error, handleProgressUpdate } = useBlind75();
+  const [solvedCount, setSolvedCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(75); // default total count
+
+  useEffect(() => {
+    getSolvedCount()
+      .then(response => {
+        setSolvedCount(response.data.data.solvedCount || 0);
+        setTotalCount(response.data.data.totalCount || 75);
+      })
+      .catch(() => {
+        setSolvedCount(0);
+        setTotalCount(75);
+      });
+  }, []);
 
   if (loading) {
     return (
@@ -131,13 +147,11 @@ function Blind75Page() {
         <h1 className="text-2xl font-bold text-gray-900 mb-1">Blind 75</h1>
 
         {(() => {
-          const solvedCount = questions.filter(q => q.status === 'SOLVED').length;
-          const total = questions.length || 75;
-          const pct = Math.round((solvedCount / total) * 100);
+          const pct = Math.round((solvedCount / totalCount) * 100);
           return (
             <div className="mb-6">
               <p className="text-sm text-gray-500 mb-3">
-                <span className="font-semibold text-purple-700">{solvedCount}</span> / {total} questions solved
+                <span className="font-semibold text-purple-700">{solvedCount}</span> / {totalCount} questions solved
               </p>
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-2.5 bg-purple-100 rounded-full overflow-hidden">
