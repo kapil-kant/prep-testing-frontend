@@ -11,3 +11,7 @@ export const getStatuses = () => {
 export const updateProgress = (questionId, status) => {
   return privateAxios.post(`/api/v1/blind75/${questionId}/progress`, { status });
 };
+
+export const getSolvedCount = () => {
+  return privateAxios.get('/api/v1/blind75/solved-count');
+};
