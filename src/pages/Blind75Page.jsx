@@ -1,4 +1,5 @@
 import useBlind75 from '../hooks/useBlind75';
+import { useState } from 'react';
 
 const DIFFICULTY_STYLES = {
   EASY:   'bg-green-100 text-green-700',
@@ -107,6 +108,60 @@ function QuestionRow({ index, question, statuses, onProgressUpdate }) {
 }
 
 function Blind75Page() {
+  const { questions, statuses, loading, error, userProgress, progressLoading, progressError, handleProgressUpdate } = useBlind75();
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+        Blind 75 Questions
+      </h1>
+
+      {/* Progress Display */}
+      <div className="my-4 text-lg">
+        {progressLoading ? (
+          <span>Loading progress...</span>
+        ) : progressError ? (
+          <span className="text-red-600">Failed to load progress</span>
+        ) : (
+          <span>{userProgress.solvedCount} / {userProgress.totalCount} solved</span>
+        )}
+      </div>
+
+      {/* Questions Table or Loading/Error states */}
+      {loading ? (
+        <div>Loading questions...</div>
+      ) : error ? (
+        <div className="text-red-600">{error}</div>
+      ) : (
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Difficulty</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Topic</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pattern</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Practice</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Video</th>
+            </tr>
+          </thead>
+          <tbody>
+            {questions.map((question, index) => (
+              <QuestionRow
+                key={question.id}
+                index={index}
+                question={question}
+                statuses={statuses}
+                onProgressUpdate={handleProgressUpdate}
+              />
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
   const { questions, statuses, loading, error, handleProgressUpdate } = useBlind75();
 
   if (loading) {

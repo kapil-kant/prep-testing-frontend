@@ -7,6 +7,10 @@ function useBlind75() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [userProgress, setUserProgress] = useState({ solvedCount: 0, totalCount: 0 });
+  const [progressLoading, setProgressLoading] = useState(true);
+  const [progressError, setProgressError] = useState(null);
+
   useEffect(() => {
     Promise.all([getAllQuestions(), getStatuses()])
       .then(([questionsRes, statusesRes]) => {
@@ -15,6 +19,20 @@ function useBlind75() {
       })
       .catch((err) => setError(err.response?.data?.message || 'Failed to load questions.'))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    setProgressLoading(true);
+    setProgressError(null);
+    getUserProgressSummary()
+      .then((res) => {
+        setUserProgress(res.data.data || { solvedCount: 0, totalCount: 0 });
+      })
+      .catch((err) => {
+        setProgressError(err.response?.data?.message || 'Failed to load user progress.');
+        setUserProgress({ solvedCount: 0, totalCount: 0 });
+      })
+      .finally(() => setProgressLoading(false));
   }, []);
 
   const handleProgressUpdate = (questionId, status) => {
@@ -27,7 +45,7 @@ function useBlind75() {
       .catch((err) => setError(err.response?.data?.message || 'Failed to update progress.'));
   };
 
-  return { questions, statuses, loading, error, handleProgressUpdate };
+  return { questions, statuses, loading, error, userProgress, progressLoading, progressError, handleProgressUpdate };
 }
 
 export default useBlind75;
